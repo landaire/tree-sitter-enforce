@@ -65,12 +65,12 @@ module.exports = grammar({
     $.comment_block,
     $.doc_line,
     $.doc_block,
-    $.include,
-    $.define,
-    $.ifdef,
-    $.ifndef,
-    $.else,
-    $.endif
+    // $.include,
+    // $.define,
+    // $.ifdef,
+    // $.ifndef,
+    // $.else,
+    // $.endif
   ],
 
   rules: {
@@ -81,16 +81,148 @@ module.exports = grammar({
       $.decl_method,
       $.decl_variable,
       $.typedef,
+      $.preproc_if,
+      $.preproc_ifdef,
+      $.preproc_include,
+      $.preproc_def,
+      $.preproc_function_def,
+      $.preproc_call,
     )),
 
-    include: $ => seq('#include', $.preproc_const),
-    define: $ => seq('#define', $.preproc_const),
-    ifdef: $ => seq('#ifdef', $.preproc_const),
-    ifndef: $ => seq('#ifndef', $.preproc_const),
-    else: _ => token('#else'),
-    endif: _ => token('#endif'),
+    _block_item: $ => choice(
+      $.decl_class,
+      $.decl_enum,
+      $.decl_method,
+      $.decl_variable,
+      $.typedef,
+      $.preproc_if,
+      $.preproc_ifdef,
+      $.preproc_include,
+      $.preproc_def,
+      $.preproc_function_def,
+      $.preproc_call,
+    ),
+
+    preproc_include: $ => seq(
+      preprocessor('include'),
+      field('path', choice(
+        $.literal_string,
+        $.identifier,
+        $.preproc_const,
+        alias($.preproc_call_expression, $.call_expression),
+      )),
+      token.immediate(/\r?\n/),
+    ),
+
+    preproc_def: $ => seq(
+      preprocessor('define'),
+      field('name', choice($.identifier, $.literal_string)),
+      field('value', optional($.preproc_arg)),
+      token.immediate(/\r?\n/),
+    ),
+
+    preproc_function_def: $ => seq(
+      preprocessor('define'),
+      field('name', $.identifier),
+      field('parameters', $.preproc_params),
+      field('value', optional($.preproc_arg)),
+      token.immediate(/\r?\n/),
+    ),
+
+    preproc_params: $ => seq(
+      token.immediate('('), commaSep(choice($.identifier, '...')), ')',
+    ),
+
+    preproc_call: $ => seq(
+      field('directive', $.preproc_directive),
+      field('argument', optional($.preproc_arg)),
+      token.immediate(/\r?\n/),
+    ),
 
     preproc_const: _ => token.immediate(choice(/\s+[^\n#"]+/, /\s+"[^\n"]*"/)),
+
+    ...preprocIf('', $ => $._block_item),
+    // ...preprocIf('_in_field_declaration_list', $ => $._field_declaration_list_item),
+    // ...preprocIf('_in_enumerator_list', $ => seq($.enumerator, ',')),
+    // ...preprocIf('_in_enumerator_list_no_comma', $ => $.enumerator, -1),
+
+
+    preproc_arg: _ => token(prec(-1, /\S([^/\n]|\/[^*]|\\\r?\n)*/)),
+    preproc_directive: _ => /#[ \t]*[a-zA-Z0-9]\w*/,
+
+    _preproc_expression: $ => choice(
+      $.identifier,
+      alias($.preproc_call_expression, $.call_expression),
+      $.literal_int,
+      $.literal_string,
+      $.preproc_defined,
+      alias($.preproc_unary_expression, $.unary_expression),
+      alias($.preproc_binary_expression, $.binary_expression),
+      alias($.preproc_parenthesized_expression, $.parenthesized_expression),
+    ),
+
+    preproc_parenthesized_expression: $ => seq(
+      '(',
+      $._preproc_expression,
+      ')',
+    ),
+
+    preproc_defined: $ => choice(
+      prec(PREC.INVOKATION, seq('defined', '(', $.identifier, ')')),
+      seq('defined', $.identifier),
+    ),
+
+    preproc_unary_expression: $ => prec.left(PREC.PREFIX, seq(
+      field('operator', choice('!', '~', '-', '+')),
+      field('argument', $._preproc_expression),
+    )),
+
+    preproc_call_expression: $ => prec(PREC.INVOKATION, seq(
+      field('function', $.identifier),
+      field('arguments', alias($.preproc_argument_list, $.argument_list)),
+    )),
+
+    preproc_argument_list: $ => seq(
+      '(',
+      commaSep($._preproc_expression),
+      ')',
+    ),
+
+    preproc_binary_expression: $ => {
+      const table = [
+        ['+', PREC.ADD],
+        ['-', PREC.ADD],
+        ['*', PREC.MULT],
+        ['/', PREC.MULT],
+        ['%', PREC.MULT],
+        ['||', PREC.LOGICAL_OR],
+        ['&&', PREC.LOGICAL_AND],
+        ['|', PREC.OR],
+        ['^', PREC.XOR],
+        ['&', PREC.AND],
+        ['==', PREC.EQUAL],
+        ['!=', PREC.EQUAL],
+        ['>', PREC.REL],
+        ['>=', PREC.REL],
+        ['<=', PREC.REL],
+        ['<', PREC.REL],
+        ['<<', PREC.SHIFT],
+        ['>>', PREC.SHIFT],
+      ];
+
+      return choice(...table.map(([operator, precedence]) => {
+        return prec.left(precedence, seq(
+          field('left', $._preproc_expression),
+          // @ts-ignore
+          field('operator', operator),
+          field('right', $._preproc_expression),
+        ));
+      }));
+    },
+
+
+    // Main parser
+
 
     doc_line: _ => token(prec(PREC.DOC, seq(choice('//!', '//?'), /[^\n]*/))),
 
@@ -615,6 +747,110 @@ module.exports = grammar({
 
   }
 });
+
+/**
+ *
+ * @param {string} suffix
+ *
+ * @param {RuleBuilder<string>} content
+ *
+ * @param {number} precedence
+ *
+ * @returns {RuleBuilders<string, string>}
+ */
+function preprocIf(suffix, content, precedence = 0) {
+  /**
+   *
+   * @param {GrammarSymbols<string>} $
+   *
+   * @returns {ChoiceRule}
+   */
+  function alternativeBlock($) {
+    return choice(
+      suffix ? alias($['preproc_else' + suffix], $.preproc_else) : $.preproc_else,
+      suffix ? alias($['preproc_elif' + suffix], $.preproc_elif) : $.preproc_elif,
+      suffix ? alias($['preproc_elifdef' + suffix], $.preproc_elifdef) : $.preproc_elifdef,
+    );
+  }
+
+  return {
+    ['preproc_if' + suffix]: $ => prec(precedence, seq(
+      preprocessor('if'),
+      field('condition', $._preproc_expression),
+      '\n',
+      repeat(content($)),
+      field('alternative', optional(alternativeBlock($))),
+      preprocessor('endif'),
+    )),
+
+    ['preproc_ifdef' + suffix]: $ => prec(precedence, seq(
+      choice(preprocessor('ifdef'), preprocessor('ifndef')),
+      field('name', $.preproc_const),
+      repeat(content($)),
+      field('alternative', optional(alternativeBlock($))),
+      preprocessor('endif'),
+    )),
+
+    ['preproc_else' + suffix]: $ => prec(precedence, seq(
+      preprocessor('else'),
+      repeat(content($)),
+    )),
+
+    ['preproc_elif' + suffix]: $ => prec(precedence, seq(
+      preprocessor('elif'),
+      field('condition', $._preproc_expression),
+      '\n',
+      repeat(content($)),
+      field('alternative', optional(alternativeBlock($))),
+    )),
+
+    ['preproc_elifdef' + suffix]: $ => prec(precedence, seq(
+      choice(preprocessor('elifdef'), preprocessor('elifndef')),
+      field('name', $.preproc_const),
+      repeat(content($)),
+      field('alternative', optional(alternativeBlock($))),
+    )),
+  };
+}
+
+/**
+ * Creates a preprocessor regex rule
+ *
+ * @param {RegExp | Rule | string} command
+ *
+ * @returns {AliasRule}
+ */
+function preprocessor(command) {
+  return alias(new RegExp('#[ \t]*' + command), '#' + command);
+}
+
+/**
+ * Creates a rule to optionally match one or more of the rules separated by a comma
+ *
+ * @param {Rule} rule
+ *
+ * @returns {ChoiceRule}
+ */
+function commaSep(rule) {
+  return optional(commaSep1(rule));
+}
+
+/**
+ * Creates a rule to match one or more of the rules separated by a comma
+ *
+ * @param {Rule} rule
+ *
+ * @returns {SeqRule}
+ */
+function commaSep1(rule) {
+  return seq(rule, repeat(seq(',', rule)));
+}
+
+
+module.exports.preprocessor = preprocessor;
+module.exports.preprocIf = preprocIf;
+module.exports.commaSep = commaSep;
+module.exports.commaSep1 = commaSep1;
 
 // Quirks
 /*

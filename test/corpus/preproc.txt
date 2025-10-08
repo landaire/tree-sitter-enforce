@@ -10,13 +10,26 @@ preproc
 #define "foo#bar"
 
 #ifdef foo
+#endif
+
 #ifdef "foo"
+#endif
+
 #ifdef ""
+#endif
+
 #ifdef "foo#bar"
+#endif
 
 #ifndef foo
+#endif
+
 #ifndef "foo"
+#endif
+
 #ifndef ""
+#endif
+
 #ifndef "foo#bar"
 
 #else
@@ -40,3 +53,16 @@ preproc
 	(ifndef (preproc_const))
 	(else)
 	(endif))
+
+================================================================================
+preproc with invalid syntax
+================================================================================
+#ifdef foo
+THIS DEFINE BREAKS GAME SCRIPT MODULE COMPILATION DO NOT REMOVE IT,
+    IT IS NEEDED FOR VARIOUS TESTS
+#else
+#endif
+
+enum Bar{}
+--------------------------------------------------------------------------------
+(compilation_unit)
