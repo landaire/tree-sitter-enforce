@@ -3637,7 +3637,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "preproc_const",
             "named": true
           }
         ]
@@ -4140,7 +4140,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "preproc_const",
             "named": true
           }
         ]
@@ -4216,7 +4216,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "preproc_const",
             "named": true
           }
         ]
@@ -4284,7 +4284,7 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
+            "type": "preproc_const",
             "named": true
           }
         ]
@@ -4343,6 +4343,10 @@
           },
           {
             "type": "literal_string",
+            "named": true
+          },
+          {
+            "type": "preproc_const",
             "named": true
           }
         ]
@@ -5384,6 +5388,10 @@
   },
   {
     "type": "preproc_arg",
+    "named": true
+  },
+  {
+    "type": "preproc_const",
     "named": true
   },
   {

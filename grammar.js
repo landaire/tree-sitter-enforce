@@ -120,7 +120,7 @@ module.exports = grammar({
       field('path', choice(
         $.literal_string,
         $.identifier,
-        // $.preproc_const,
+        $.preproc_const,
         alias($.preproc_call_expression, $.call_expression),
       )),
       token.immediate(/\r?\n/),
@@ -151,7 +151,7 @@ module.exports = grammar({
       token.immediate(/\r?\n/),
     ),
 
-    // preproc_const: _ => token.immediate(choice(/\s+[^\n#"]+/, /\s+"[^\n"]*"/)),
+    preproc_const: _ => token.immediate(choice(/\s+[^\n#"]+/, /\s+"[^\n"]*"/)),
 
     ...preprocIf('', $ => $._root_block_item),
     ...preprocIf('_in_class', $ => $._class_block_item),
@@ -795,7 +795,7 @@ function preprocIf(suffix, content, precedence = 0) {
 
     ['preproc_ifdef' + suffix]: $ => prec(precedence, seq(
       choice(preprocessor('ifdef'), preprocessor('ifndef')),
-      field('name', $.identifier),
+      field('name', $.preproc_const),
       repeat(content($)),
       field('alternative', optional(alternativeBlock($))),
       preprocessor('endif'),
@@ -816,7 +816,7 @@ function preprocIf(suffix, content, precedence = 0) {
 
     ['preproc_elifdef' + suffix]: $ => prec(precedence, seq(
       choice(preprocessor('elifdef'), preprocessor('elifndef')),
-      field('name', $.identifier),
+      field('name', $.preproc_const),
       repeat(content($)),
       field('alternative', optional(alternativeBlock($))),
     )),

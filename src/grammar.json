@@ -189,6 +189,10 @@
                 "name": "identifier"
               },
               {
+                "type": "SYMBOL",
+                "name": "preproc_const"
+              },
+              {
                 "type": "ALIAS",
                 "content": {
                   "type": "SYMBOL",
@@ -419,6 +423,22 @@
         }
       ]
     },
+    "preproc_const": {
+      "type": "IMMEDIATE_TOKEN",
+      "content": {
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "PATTERN",
+            "value": "\\s+[^\\n#\"]+"
+          },
+          {
+            "type": "PATTERN",
+            "value": "\\s+\"[^\\n\"]*\""
+          }
+        ]
+      }
+    },
     "preproc_if": {
       "type": "PREC",
       "value": 0,
@@ -528,7 +548,7 @@
             "name": "name",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier"
+              "name": "preproc_const"
             }
           },
           {
@@ -704,7 +724,7 @@
             "name": "name",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier"
+              "name": "preproc_const"
             }
           },
           {
@@ -870,7 +890,7 @@
             "name": "name",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier"
+              "name": "preproc_const"
             }
           },
           {
@@ -1076,7 +1096,7 @@
             "name": "name",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier"
+              "name": "preproc_const"
             }
           },
           {
@@ -1257,7 +1277,7 @@
             "name": "name",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier"
+              "name": "preproc_const"
             }
           },
           {
@@ -1463,7 +1483,7 @@
             "name": "name",
             "content": {
               "type": "SYMBOL",
-              "name": "identifier"
+              "name": "preproc_const"
             }
           },
           {
