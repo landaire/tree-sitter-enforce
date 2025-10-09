@@ -806,6 +806,30 @@
       "required": false,
       "types": [
         {
+          "type": "preproc_call",
+          "named": true
+        },
+        {
+          "type": "preproc_def",
+          "named": true
+        },
+        {
+          "type": "preproc_function_def",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_function",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_function",
+          "named": true
+        },
+        {
+          "type": "preproc_include",
+          "named": true
+        },
+        {
           "type": "statement",
           "named": true
         }
@@ -951,6 +975,22 @@
         },
         {
           "type": "decl_method",
+          "named": true
+        },
+        {
+          "type": "preproc_def",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_include",
           "named": true
         }
       ]
@@ -3516,11 +3556,11 @@
           "named": true
         },
         {
-          "type": "decl_method",
+          "type": "decl_field",
           "named": true
         },
         {
-          "type": "decl_variable",
+          "type": "decl_method",
           "named": true
         },
         {
@@ -3540,7 +3580,23 @@
           "named": true
         },
         {
+          "type": "preproc_if_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_function",
+          "named": true
+        },
+        {
           "type": "preproc_ifdef",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_function",
           "named": true
         },
         {
@@ -3548,7 +3604,7 @@
           "named": true
         },
         {
-          "type": "typedef",
+          "type": "statement",
           "named": true
         }
       ]
@@ -3581,7 +3637,7 @@
         "required": true,
         "types": [
           {
-            "type": "preproc_const",
+            "type": "identifier",
             "named": true
           }
         ]
@@ -3600,11 +3656,11 @@
           "named": true
         },
         {
-          "type": "decl_method",
+          "type": "decl_field",
           "named": true
         },
         {
-          "type": "decl_variable",
+          "type": "decl_method",
           "named": true
         },
         {
@@ -3624,7 +3680,23 @@
           "named": true
         },
         {
+          "type": "preproc_if_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_function",
+          "named": true
+        },
+        {
           "type": "preproc_ifdef",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_function",
           "named": true
         },
         {
@@ -3632,7 +3704,7 @@
           "named": true
         },
         {
-          "type": "typedef",
+          "type": "statement",
           "named": true
         }
       ]
@@ -3655,11 +3727,11 @@
           "named": true
         },
         {
-          "type": "decl_method",
+          "type": "decl_field",
           "named": true
         },
         {
-          "type": "decl_variable",
+          "type": "decl_method",
           "named": true
         },
         {
@@ -3679,7 +3751,23 @@
           "named": true
         },
         {
+          "type": "preproc_if_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_function",
+          "named": true
+        },
+        {
           "type": "preproc_ifdef",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_function",
           "named": true
         },
         {
@@ -3687,7 +3775,7 @@
           "named": true
         },
         {
-          "type": "typedef",
+          "type": "statement",
           "named": true
         }
       ]
@@ -3807,10 +3895,6 @@
           "named": true
         },
         {
-          "type": "decl_variable",
-          "named": true
-        },
-        {
           "type": "preproc_call",
           "named": true
         },
@@ -3833,9 +3917,197 @@
         {
           "type": "preproc_include",
           "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preproc_if_in_class",
+    "named": true,
+    "fields": {
+      "alternative": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "preproc_elif",
+            "named": true
+          },
+          {
+            "type": "preproc_elifdef",
+            "named": true
+          },
+          {
+            "type": "preproc_else",
+            "named": true
+          }
+        ]
+      },
+      "condition": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "binary_expression",
+            "named": true
+          },
+          {
+            "type": "call_expression",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "literal_int",
+            "named": true
+          },
+          {
+            "type": "literal_string",
+            "named": true
+          },
+          {
+            "type": "parenthesized_expression",
+            "named": true
+          },
+          {
+            "type": "preproc_defined",
+            "named": true
+          },
+          {
+            "type": "unary_expression",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "decl_enum",
+          "named": true
         },
         {
-          "type": "typedef",
+          "type": "decl_field",
+          "named": true
+        },
+        {
+          "type": "decl_method",
+          "named": true
+        },
+        {
+          "type": "preproc_def",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_include",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preproc_if_in_function",
+    "named": true,
+    "fields": {
+      "alternative": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "preproc_elif",
+            "named": true
+          },
+          {
+            "type": "preproc_elifdef",
+            "named": true
+          },
+          {
+            "type": "preproc_else",
+            "named": true
+          }
+        ]
+      },
+      "condition": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "binary_expression",
+            "named": true
+          },
+          {
+            "type": "call_expression",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "literal_int",
+            "named": true
+          },
+          {
+            "type": "literal_string",
+            "named": true
+          },
+          {
+            "type": "parenthesized_expression",
+            "named": true
+          },
+          {
+            "type": "preproc_defined",
+            "named": true
+          },
+          {
+            "type": "unary_expression",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "preproc_call",
+          "named": true
+        },
+        {
+          "type": "preproc_def",
+          "named": true
+        },
+        {
+          "type": "preproc_function_def",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_function",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_function",
+          "named": true
+        },
+        {
+          "type": "preproc_include",
+          "named": true
+        },
+        {
+          "type": "statement",
           "named": true
         }
       ]
@@ -3868,7 +4140,7 @@
         "required": true,
         "types": [
           {
-            "type": "preproc_const",
+            "type": "identifier",
             "named": true
           }
         ]
@@ -3888,10 +4160,6 @@
         },
         {
           "type": "decl_method",
-          "named": true
-        },
-        {
-          "type": "decl_variable",
           "named": true
         },
         {
@@ -3917,9 +4185,141 @@
         {
           "type": "preproc_include",
           "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preproc_ifdef_in_class",
+    "named": true,
+    "fields": {
+      "alternative": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "preproc_elif",
+            "named": true
+          },
+          {
+            "type": "preproc_elifdef",
+            "named": true
+          },
+          {
+            "type": "preproc_else",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "decl_enum",
+          "named": true
         },
         {
-          "type": "typedef",
+          "type": "decl_field",
+          "named": true
+        },
+        {
+          "type": "decl_method",
+          "named": true
+        },
+        {
+          "type": "preproc_def",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_class",
+          "named": true
+        },
+        {
+          "type": "preproc_include",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preproc_ifdef_in_function",
+    "named": true,
+    "fields": {
+      "alternative": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "preproc_elif",
+            "named": true
+          },
+          {
+            "type": "preproc_elifdef",
+            "named": true
+          },
+          {
+            "type": "preproc_else",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "preproc_call",
+          "named": true
+        },
+        {
+          "type": "preproc_def",
+          "named": true
+        },
+        {
+          "type": "preproc_function_def",
+          "named": true
+        },
+        {
+          "type": "preproc_if_in_function",
+          "named": true
+        },
+        {
+          "type": "preproc_ifdef_in_function",
+          "named": true
+        },
+        {
+          "type": "preproc_include",
+          "named": true
+        },
+        {
+          "type": "statement",
           "named": true
         }
       ]
@@ -3943,10 +4343,6 @@
           },
           {
             "type": "literal_string",
-            "named": true
-          },
-          {
-            "type": "preproc_const",
             "named": true
           }
         ]
@@ -4988,10 +5384,6 @@
   },
   {
     "type": "preproc_arg",
-    "named": true
-  },
-  {
-    "type": "preproc_const",
     "named": true
   },
   {

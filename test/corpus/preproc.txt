@@ -60,9 +60,28 @@ preproc with invalid syntax
 #ifdef foo
 THIS DEFINE BREAKS GAME SCRIPT MODULE COMPILATION DO NOT REMOVE IT,
     IT IS NEEDED FOR VARIOUS TESTS
-#else
 #endif
 
-enum Bar{}
+enum Bar{};
+--------------------------------------------------------------------------------
+(compilation_unit)
+
+================================================================================
+preproc in body
+================================================================================
+
+class Foo {
+#ifdef FOO
+    void bar()
+    {
+    #if FOO
+        int x = 0;
+    #else
+        int y = 1;
+    #endif
+    }
+#endif
+}
+
 --------------------------------------------------------------------------------
 (compilation_unit)

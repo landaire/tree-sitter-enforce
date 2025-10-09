@@ -65,12 +65,6 @@ module.exports = grammar({
     $.comment_block,
     $.doc_line,
     $.doc_block,
-    // $.include,
-    // $.define,
-    // $.ifdef,
-    // $.ifndef,
-    // $.else,
-    // $.endif
   ],
 
   rules: {
@@ -89,14 +83,32 @@ module.exports = grammar({
       $.preproc_call,
     )),
 
-    _block_item: $ => choice(
-      $.decl_class,
-      $.decl_enum,
+    _root_block_item: $ => choice(
+      $.decl_enum, // see quirk 6
       $.decl_method,
-      $.decl_variable,
-      $.typedef,
+      $.decl_class,
       $.preproc_if,
       $.preproc_ifdef,
+      $.preproc_include,
+      $.preproc_def,
+      $.preproc_function_def,
+      $.preproc_call,
+    ),
+
+    _class_block_item: $ => choice(
+      $.preproc_if_in_class,
+      $.preproc_ifdef_in_class,
+      $.preproc_include,
+      $.preproc_def,
+      $.decl_field,
+      $.decl_enum, // see quirk 6
+      $.decl_method,
+    ),
+
+    _function_block_item: $ => choice(
+      $.statement,
+      $.preproc_if_in_function,
+      $.preproc_ifdef_in_function,
       $.preproc_include,
       $.preproc_def,
       $.preproc_function_def,
@@ -108,7 +120,7 @@ module.exports = grammar({
       field('path', choice(
         $.literal_string,
         $.identifier,
-        $.preproc_const,
+        // $.preproc_const,
         alias($.preproc_call_expression, $.call_expression),
       )),
       token.immediate(/\r?\n/),
@@ -139,9 +151,11 @@ module.exports = grammar({
       token.immediate(/\r?\n/),
     ),
 
-    preproc_const: _ => token.immediate(choice(/\s+[^\n#"]+/, /\s+"[^\n"]*"/)),
+    // preproc_const: _ => token.immediate(choice(/\s+[^\n#"]+/, /\s+"[^\n"]*"/)),
 
-    ...preprocIf('', $ => $._block_item),
+    ...preprocIf('', $ => $._root_block_item),
+    ...preprocIf('_in_class', $ => $._class_block_item),
+    ...preprocIf('_in_function', $ => $._function_block_item),
     // ...preprocIf('_in_field_declaration_list', $ => $._field_declaration_list_item),
     // ...preprocIf('_in_enumerator_list', $ => seq($.enumerator, ',')),
     // ...preprocIf('_in_enumerator_list_no_comma', $ => $.enumerator, -1),
@@ -241,7 +255,7 @@ module.exports = grammar({
       '/',
     ))),
 
-    block: $ => seq('{', repeat($.statement), '}'),
+    block: $ => seq('{', repeat($._function_block_item), '}'),
     statement: $ => choice(
       $.block,
       $.statement_expression,
@@ -405,11 +419,7 @@ module.exports = grammar({
 
     class_body: $ => seq(
       '{',
-      repeat(choice(
-        $.decl_enum, // see quirk 6
-        $.decl_field,
-        $.decl_method,
-      )),
+      repeat($._class_block_item),
       '}',
     ),
 
@@ -785,7 +795,7 @@ function preprocIf(suffix, content, precedence = 0) {
 
     ['preproc_ifdef' + suffix]: $ => prec(precedence, seq(
       choice(preprocessor('ifdef'), preprocessor('ifndef')),
-      field('name', $.preproc_const),
+      field('name', $.identifier),
       repeat(content($)),
       field('alternative', optional(alternativeBlock($))),
       preprocessor('endif'),
@@ -806,7 +816,7 @@ function preprocIf(suffix, content, precedence = 0) {
 
     ['preproc_elifdef' + suffix]: $ => prec(precedence, seq(
       choice(preprocessor('elifdef'), preprocessor('elifndef')),
-      field('name', $.preproc_const),
+      field('name', $.identifier),
       repeat(content($)),
       field('alternative', optional(alternativeBlock($))),
     )),
